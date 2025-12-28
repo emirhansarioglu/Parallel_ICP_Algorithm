@@ -45,7 +45,7 @@ float distSq(const Point3D& a, const Point3D& b) {
     return (a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y) + (a.z - b.z)*(a.z - b.z);
 }
 
-// SVD Rigid Transformation (The "Heart" of ICP)
+// SVD Rigid Transformation 
 Eigen::Matrix4f findRigidTransform(const std::vector<Point3D>& src, const std::vector<Point3D>& tgt) {
     int N = src.size();
     Eigen::Vector3f center_src(0,0,0), center_tgt(0,0,0);

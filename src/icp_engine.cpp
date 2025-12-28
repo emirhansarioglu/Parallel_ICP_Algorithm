@@ -3,9 +3,12 @@
 
 namespace fs = std::filesystem;
 
-int main() {
-    auto source = loadPLY("bunny_source.ply");
-    auto target = loadPLY("bunny_target.ply");
+int main(int argc, char* argv[]) {
+    std::string source_file = (argc > 1) ? argv[1] : "bun_000.ply";
+    std::string target_file = (argc > 2) ? argv[2] : "bun_000_target.ply";
+
+    auto source = loadPLY(source_file);
+    auto target = loadPLY(target_file);
 
     if (source.empty() || target.empty()) {
         std::cerr << "Error: Could not load bunny files!" << std::endl;

@@ -1,12 +1,24 @@
 #include <open3d/Open3D.h>
 #include <thread>
 #include <chrono>
+#include <iostream>
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        std::cerr << "Usage: icp_vis.exe <target_file.ply>" << std::endl;
+        return -1;
+    }
+
+    std::string target_filename = argv[1];
+
     open3d::visualization::Visualizer vis;
     vis.CreateVisualizerWindow("ICP Replay", 1024, 768);
 
-    auto target = open3d::io::CreatePointCloudFromFile("bunny_target.ply");
+    auto target = open3d::io::CreatePointCloudFromFile(target_filename);
+    if (target->IsEmpty()) {
+        std::cerr << "Error: Could not load " << target_filename << std::endl;
+        return -1;
+    }
     target->PaintUniformColor({0, 0, 1}); // Blue
     vis.AddGeometry(target);
 

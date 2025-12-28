@@ -4,8 +4,8 @@
 namespace fs = std::filesystem;
 
 int main(int argc, char* argv[]) {
-    std::string source_file = (argc > 1) ? argv[1] : "bun_000.ply";
-    std::string target_file = (argc > 2) ? argv[2] : "bun_000_target.ply";
+    std::string source_file = (argc > 1) ? argv[1] : "bun000.ply";
+    std::string target_file = (argc > 2) ? argv[2] : "bun000_target.ply";
 
     auto source = loadPLY(source_file);
     auto target = loadPLY(target_file);

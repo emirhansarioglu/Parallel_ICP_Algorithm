@@ -1,53 +1,121 @@
 # 3D Point Cloud Alignment (ICP)
-A C++ and CUDA implementation/comparison of the Iterative Closest Point (ICP) algorithm using Open3D for visualization and Eigen for SVD-based rigid body transformations. 
-This project demonstrates the step-by-step alignment of two point clouds (source and target).
-The goal is to show the advantage of utilizing parallel computing by ICP algorithm
 
-### Project Structure (for now)
+A C++ and CUDA implementation of the Iterative Closest Point (ICP) algorithm. This project demonstrates point cloud alignment and compares CPU vs GPU performance using parallel computing.
 
-generate_data: Takes a base .ply file and creates a transformed "Target" version to act as the ground truth.
+## Features
+- **CPU Implementation**: Uses Eigen for SVD-based rigid transformations
+- **CUDA Implementation**: GPU-accelerated version with parallel nearest neighbor search, centroid computation, and transformation
+- **Visualization**: Open3D-based replay tool (Windows only)
+- **Performance Comparison**: Demonstrates 10-1000x speedup with GPU acceleration on large point clouds
 
-icp_engine: The core mathematical engine. It calculates the alignment and saves intermediate snapshots (frames). Uses cpu. (CUDA to be implemented)
+## Project Structure
 
-icp_vis: A replay tool that reads saved frames and plays them back like a GIF/animation.
+- **generate_data**: Creates a transformed "target" point cloud from a source .ply file
+- **icp_engine**: CPU-based ICP implementation with frame-by-frame snapshots
+- **icp_cuda**: GPU-accelerated ICP using CUDA
+- **icp_vis**: Interactive visualization tool for replaying alignment steps
 
-### Prerequisites
-Windows 10/11 (with latest AMD/NVIDIA/Intel graphics drivers for OpenGL support).
+## Prerequisites
 
-Visual Studio 2022 (with C++ Desktop Development workload).
+### For Windows (CPU + Visualization)
+- Windows 10/11
+- Visual Studio 2022 (C++ Desktop Development workload)
+- CMake 3.18+
+- Open3D libraries (e.g., `D:/Open3D/open3d-devel-windows-amd64-0.19.0/CMake`)
 
-CMake 3.10+.
+### For Linux/Remote GPU (CUDA)
+- CUDA Toolkit 11.0+ with compatible NVIDIA GPU
+- CMake 3.18+
+- Eigen3 library or local copy
 
-Open3D libraries installed (e.g., at D:/Open3D/open3d-devel-windows-amd64-0.19.0/CMake).
+## Installation
 
-### How to build?
-Open the x64 Native Tools Command Prompt for VS 2022.
+### Eigen3 Setup (for Linux)
 
-Navigate to the project root and use following commands:
+```bash
+sudo apt-get install libeigen3-dev
+```
+### OPEN3D Setup (for Windows)
+Follow the guide here 
+https://www.open3d.org/docs/release/getting_started.html#c
 
+(Note: Eigen is also installed with Open3D, no need for Eigen installation if you are on Windows)
+
+
+## Build Instructions
+
+### Windows (CPU Version)
+```cmd
+# Open x64 Native Tools Command Prompt for VS 2022
 mkdir build
 cd build
 cmake ..
 cmake --build . --config Release
+```
 
-### How to run?
-Follow these steps in order from the project root directory:
+### Linux (CUDA Version)
+```bash
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+```
 
-##### 1. Generate Target Data
-Create a misaligned "Target" file from your original source file:
+## Usage
 
+### 1. Generate Target Data
+Create a transformed target point cloud:
+
+**Windows:**
+```cmd
 .\build\Release\generate_data.exe bun000.ply
-Output: Creates bun000_target.ply.
+```
 
-##### 2. Run ICP Engine
-Compute the transformation. This creates a frames/ folder containing the alignment steps:
+**Linux:**
+```bash
+./build/generate_data bun000.ply
+```
 
-CUDA version will be implemented.
+**Output:** `bun000_target.ply`
 
+### 2. Run ICP Alignment
+
+**CPU Version (Windows):**
+```cmd
 .\build\Release\icp_engine.exe bun000.ply bun000_target.ply
-Output: Fills frames/ with iter_0.ply, iter_5.ply, etc.
+```
 
-##### 3. Visualize the Alignment
-Play back the results in an interactive Open3D window:
+**CUDA Version (Linux):**
+```bash
+./build/icp_cuda bun000.ply bun000_target.ply
+```
 
+**Output:** Creates `frames/` directory with intermediate alignment steps (`iter_0.ply`, `iter_5.ply`, etc.)
+
+### 3. Visualize Results (Windows only)
+```cmd
 .\build\Release\icp_vis.exe bun000_target.ply
+```
+
+Opens an interactive Open3D window showing the alignment animation.
+
+
+## Algorithm Details
+
+### ICP Pipeline
+1. **Nearest Neighbor Search**: Find closest target point for each source point
+2. **Centroid Computation**: Calculate centers of mass for both point sets
+3. **SVD Transformation**: Compute optimal rigid transformation (rotation + translation)
+4. **Apply Transform**: Update source points
+5. **Iterate**: Repeat until convergence (50 iterations)
+
+### CUDA Optimizations
+- Parallel nearest neighbor search (each thread processes one source point)
+- Shared memory reductions for centroid computation
+- GPU-accelerated covariance matrix calculation
+- Parallel point transformation
+
+
+## TODO
+- Fair Performance Comparison (both icp_engine and icp_cuda on the same machine!)
+- KD-Tree for O(N log N) nearest neighbor search
+- Multi-stream CUDA processing

@@ -36,18 +36,18 @@ Follow these steps in order from the project root directory:
 ##### 1. Generate Target Data
 Create a misaligned "Target" file from your original source file:
 
-.\build\Release\generate_data.exe bun_000.ply
-Output: Creates bun_000_target.ply.
+.\build\Release\generate_data.exe bun000.ply
+Output: Creates bun000_target.ply.
 
 ##### 2. Run ICP Engine
 Compute the transformation. This creates a frames/ folder containing the alignment steps:
 
 CUDA version will be implemented.
 
-.\build\Release\icp_engine.exe bun_000.ply bun_000_target.ply
+.\build\Release\icp_engine.exe bun000.ply bun000_target.ply
 Output: Fills frames/ with iter_0.ply, iter_5.ply, etc.
 
 ##### 3. Visualize the Alignment
 Play back the results in an interactive Open3D window:
 
-.\build\Release\icp_vis.exe bun_000_target.ply
+.\build\Release\icp_vis.exe bun000_target.ply

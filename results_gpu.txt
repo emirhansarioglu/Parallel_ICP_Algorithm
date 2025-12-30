@@ -1,0 +1,20 @@
+=== CUDA ICP BENCHMARK ===
+Source points: 40256
+Target points: 40256
+GPU: NVIDIA GeForce RTX 3060
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    881.679 ms (0.881679 s)
+Average time per iter:   17.2878 ms
+
+Nearest Neighbor total:  346.494 ms (39.2993%)
+Centroid compute total:  2.49596 ms (0.283092%)
+Transform compute total: 1.34948 ms (0.153058%)
+Apply transform total:   0.703151 ms (0.0797513%)
+File I/O & memcpy total: 530.629 ms (60.1839%)
+
+Avg NN per iter:         6.79399 ms
+Avg Centroid per iter:   0.0489405 ms
+Avg Transform per iter:  0.0264604 ms
+Avg Apply per iter:      0.0137873 ms

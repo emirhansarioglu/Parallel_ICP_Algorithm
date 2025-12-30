@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <sys/stat.h>
+#include <chrono>
 #include <Eigen/Dense>
 
 struct Point3D {
@@ -175,7 +176,7 @@ bool createDirectory(const char* path) {
             return mkdir(path, 0700) == 0;
         #endif
     }
-    return true;  // Directory already exists
+    return true;
 }
 
 std::vector<Point3D> loadPLY(const std::string& filename) {
@@ -205,7 +206,6 @@ void savePLY(const std::string& filename, const std::vector<Point3D>& points) {
         file << p.x << " " << p.y << " " << p.z << "\n";
 }
 
-// Convert Point3D vector to float3 vector
 std::vector<float3> toFloat3(const std::vector<Point3D>& points) {
     std::vector<float3> result(points.size());
     for (size_t i = 0; i < points.size(); ++i) {
@@ -214,7 +214,6 @@ std::vector<float3> toFloat3(const std::vector<Point3D>& points) {
     return result;
 }
 
-// Convert float3 vector back to Point3D
 std::vector<Point3D> toPoint3D(const std::vector<float3>& points) {
     std::vector<Point3D> result(points.size());
     for (size_t i = 0; i < points.size(); ++i) {
@@ -223,7 +222,6 @@ std::vector<Point3D> toPoint3D(const std::vector<float3>& points) {
     return result;
 }
 
-// Compute centroid on GPU
 float3 computeCentroidGPU(float3* d_points, int n) {
     const int blockSize = 256;
     int numBlocks = (n + blockSize - 1) / blockSize;
@@ -233,7 +231,6 @@ float3 computeCentroidGPU(float3* d_points, int n) {
     
     computeCentroid<<<numBlocks, blockSize>>>(d_points, n, d_partial_sums);
     
-    // Copy partial sums back and finish reduction on CPU
     std::vector<float3> partial_sums(numBlocks);
     CUDA_CHECK(cudaMemcpy(partial_sums.data(), d_partial_sums, 
                           numBlocks * sizeof(float3), cudaMemcpyDeviceToHost));
@@ -252,13 +249,11 @@ float3 computeCentroidGPU(float3* d_points, int n) {
     return centroid;
 }
 
-// Compute rigid transform using Eigen SVD (on CPU)
 Eigen::Matrix4f findRigidTransform(float3* d_source, float3* d_matched, int n,
                                    float3 center_src, float3 center_tgt) {
     const int blockSize = 256;
     int numBlocks = (n + blockSize - 1) / blockSize;
     
-    // Compute covariance matrix on GPU
     float* d_H;
     CUDA_CHECK(cudaMalloc(&d_H, 9 * sizeof(float)));
     CUDA_CHECK(cudaMemset(d_H, 0, 9 * sizeof(float)));
@@ -270,13 +265,11 @@ Eigen::Matrix4f findRigidTransform(float3* d_source, float3* d_matched, int n,
     CUDA_CHECK(cudaMemcpy(H_elements, d_H, 9 * sizeof(float), cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaFree(d_H));
     
-    // Build Eigen matrix
     Eigen::Matrix3f H;
     H << H_elements[0], H_elements[1], H_elements[2],
          H_elements[3], H_elements[4], H_elements[5],
          H_elements[6], H_elements[7], H_elements[8];
     
-    // SVD on CPU
     Eigen::JacobiSVD<Eigen::Matrix3f> svd(H, Eigen::ComputeFullU | Eigen::ComputeFullV);
     Eigen::Matrix3f R = svd.matrixV() * svd.matrixU().transpose();
     
@@ -296,7 +289,7 @@ Eigen::Matrix4f findRigidTransform(float3* d_source, float3* d_matched, int n,
 }
 
 // ============================================================================
-// MAIN ICP LOOP
+// MAIN ICP LOOP WITH BENCHMARKING
 // ============================================================================
 
 int main(int argc, char* argv[]) {
@@ -311,66 +304,95 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    std::cout << "Loaded " << source_cpu.size() << " source points, "
-              << target_cpu.size() << " target points" << std::endl;
+    std::cout << "=== CUDA ICP BENCHMARK ===" << std::endl;
+    std::cout << "Source points: " << source_cpu.size() << std::endl;
+    std::cout << "Target points: " << target_cpu.size() << std::endl;
+    
+    // Get GPU info
+    cudaDeviceProp prop;
+    CUDA_CHECK(cudaGetDeviceProperties(&prop, 0));
+    std::cout << "GPU: " << prop.name << std::endl;
+    std::cout << std::endl;
 
-    // Create frames directory
     if (!createDirectory("frames")) {
         std::cerr << "Warning: Could not create frames directory" << std::endl;
     }
 
-    // Convert to float3
     auto source_f3 = toFloat3(source_cpu);
     auto target_f3 = toFloat3(target_cpu);
 
     int n_source = source_f3.size();
     int n_target = target_f3.size();
 
+    // Timing variables
+    double total_nn_time = 0.0;
+    double total_centroid_time = 0.0;
+    double total_transform_time = 0.0;
+    double total_apply_time = 0.0;
+    double total_memcpy_time = 0.0;
+
     // Allocate GPU memory
     float3 *d_source, *d_target, *d_matched;
     float *d_distances;
     
+    auto malloc_start = std::chrono::high_resolution_clock::now();
     CUDA_CHECK(cudaMalloc(&d_source, n_source * sizeof(float3)));
     CUDA_CHECK(cudaMalloc(&d_target, n_target * sizeof(float3)));
     CUDA_CHECK(cudaMalloc(&d_matched, n_source * sizeof(float3)));
     CUDA_CHECK(cudaMalloc(&d_distances, n_source * sizeof(float)));
+    auto malloc_end = std::chrono::high_resolution_clock::now();
 
-    // Copy target to GPU (stays constant)
     CUDA_CHECK(cudaMemcpy(d_target, target_f3.data(), 
                           n_target * sizeof(float3), cudaMemcpyHostToDevice));
-
-    // Copy source to GPU
     CUDA_CHECK(cudaMemcpy(d_source, source_f3.data(), 
                           n_source * sizeof(float3), cudaMemcpyHostToDevice));
 
     const int blockSize = 256;
     int numBlocks = (n_source + blockSize - 1) / blockSize;
 
+    auto program_start = std::chrono::high_resolution_clock::now();
+
     // ICP iterations
     for (int iter = 0; iter <= 50; ++iter) {
+
         // Save intermediate frames
         if (iter % 5 == 0) {
+            auto save_start = std::chrono::high_resolution_clock::now();
             CUDA_CHECK(cudaMemcpy(source_f3.data(), d_source, 
                                   n_source * sizeof(float3), cudaMemcpyDeviceToHost));
             savePLY("frames/iter_" + std::to_string(iter) + ".ply", 
                     toPoint3D(source_f3));
-            std::cout << "Iteration " << iter << " completed" << std::endl;
+            auto save_end = std::chrono::high_resolution_clock::now();
+            total_memcpy_time += std::chrono::duration<double, std::milli>(save_end - save_start).count();
         }
 
         // 1. Find nearest neighbors (GPU)
+        auto nn_start = std::chrono::high_resolution_clock::now();
         findNearestNeighbors<<<numBlocks, blockSize>>>(
             d_source, n_source, d_target, n_target, d_matched, d_distances);
         CUDA_CHECK(cudaDeviceSynchronize());
+        auto nn_end = std::chrono::high_resolution_clock::now();
+        double nn_time = std::chrono::duration<double, std::milli>(nn_end - nn_start).count();
+        total_nn_time += nn_time;
 
         // 2. Compute centroids (GPU)
+        auto centroid_start = std::chrono::high_resolution_clock::now();
         float3 center_src = computeCentroidGPU(d_source, n_source);
         float3 center_tgt = computeCentroidGPU(d_matched, n_source);
+        auto centroid_end = std::chrono::high_resolution_clock::now();
+        double centroid_time = std::chrono::duration<double, std::milli>(centroid_end - centroid_start).count();
+        total_centroid_time += centroid_time;
 
         // 3. Compute transformation (hybrid GPU/CPU)
+        auto transform_start = std::chrono::high_resolution_clock::now();
         Eigen::Matrix4f T = findRigidTransform(d_source, d_matched, n_source,
                                                center_src, center_tgt);
+        auto transform_end = std::chrono::high_resolution_clock::now();
+        double transform_time = std::chrono::duration<double, std::milli>(transform_end - transform_start).count();
+        total_transform_time += transform_time;
 
         // 4. Apply transformation (GPU)
+        auto apply_start = std::chrono::high_resolution_clock::now();
         float h_transform[12];
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 4; ++j) {
@@ -386,12 +408,17 @@ int main(int argc, char* argv[]) {
         applyTransform<<<numBlocks, blockSize>>>(d_source, n_source, d_transform);
         CUDA_CHECK(cudaDeviceSynchronize());
         CUDA_CHECK(cudaFree(d_transform));
+        auto apply_end = std::chrono::high_resolution_clock::now();
+        double apply_time = std::chrono::duration<double, std::milli>(apply_end - apply_start).count();
+        total_apply_time += apply_time;
     }
+
+    auto program_end = std::chrono::high_resolution_clock::now();
+    double total_time = std::chrono::duration<double, std::milli>(program_end - program_start).count();
 
     // Final result
     CUDA_CHECK(cudaMemcpy(source_f3.data(), d_source, 
                           n_source * sizeof(float3), cudaMemcpyDeviceToHost));
-    savePLY("frames/final_aligned.ply", toPoint3D(source_f3));
 
     // Cleanup
     CUDA_CHECK(cudaFree(d_source));
@@ -399,6 +426,21 @@ int main(int argc, char* argv[]) {
     CUDA_CHECK(cudaFree(d_matched));
     CUDA_CHECK(cudaFree(d_distances));
 
-    std::cout << "ICP alignment completed!" << std::endl;
+    // Print detailed statistics
+    std::cout << "\n=== PERFORMANCE REPORT ===" << std::endl;
+    std::cout << "Total execution time:    " << total_time << " ms (" << total_time/1000.0 << " s)" << std::endl;
+    std::cout << "Average time per iter:   " << total_time/51.0 << " ms" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Nearest Neighbor total:  " << total_nn_time << " ms (" << (total_nn_time/total_time)*100 << "%)" << std::endl;
+    std::cout << "Centroid compute total:  " << total_centroid_time << " ms (" << (total_centroid_time/total_time)*100 << "%)" << std::endl;
+    std::cout << "Transform compute total: " << total_transform_time << " ms (" << (total_transform_time/total_time)*100 << "%)" << std::endl;
+    std::cout << "Apply transform total:   " << total_apply_time << " ms (" << (total_apply_time/total_time)*100 << "%)" << std::endl;
+    std::cout << "File I/O & memcpy total: " << total_memcpy_time << " ms (" << (total_memcpy_time/total_time)*100 << "%)" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Avg NN per iter:         " << total_nn_time/51.0 << " ms" << std::endl;
+    std::cout << "Avg Centroid per iter:   " << total_centroid_time/51.0 << " ms" << std::endl;
+    std::cout << "Avg Transform per iter:  " << total_transform_time/51.0 << " ms" << std::endl;
+    std::cout << "Avg Apply per iter:      " << total_apply_time/51.0 << " ms" << std::endl;
+
     return 0;
 }

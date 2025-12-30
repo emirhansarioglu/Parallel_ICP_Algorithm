@@ -18,7 +18,9 @@ else()
 endif()
 
 # Try to find Open3D (for local Windows system)
-set(Open3D_DIR "D:/Open3D/open3d-devel-windows-amd64-0.19.0/CMake")
+if(WIN32)
+    set(Open3D_DIR "D:/Open3D/open3d-devel-windows-amd64-0.19.0/CMake")
+endif()
 find_package(Open3D QUIET)
 
 # Try to find Eigen (used this instead open3d in remote gpu server)
@@ -53,7 +55,7 @@ endif()
 
 # ===== CUDA Executable (if CUDA available) =====
 if(CUDA_AVAILABLE AND (Eigen3_FOUND OR EIGEN3_INCLUDE_DIR))
-    add_executable(icp_cuda icp_cuda.cu)
+    add_executable(icp_cuda src/icp_cuda.cu)
     
     if(Eigen3_FOUND)
         target_link_libraries(icp_cuda Eigen3::Eigen)

@@ -4,9 +4,9 @@ A C++ and CUDA implementation of the Iterative Closest Point (ICP) algorithm. Th
 
 ## Features
 - **CPU Implementation**: Uses Eigen for SVD-based rigid transformations
-- **CUDA Implementation**: GPU-accelerated version with parallel nearest neighbor search, centroid computation, and transformation
-- **Visualization**: Open3D-based replay tool (Windows only)
-- **Performance Comparison**: Demonstrates 10-1000x speedup with GPU acceleration on large point clouds
+- **CUDA Implementation**: GPU-accelerated version with parallel nearest neighbor search, centroid computation, and transformation (Tested on remote GPU server in Linux only)
+- **Visualization**: Open3D-based replay tool (Tested on Windows only)
+- **Performance Comparison**: Demonstrates 300x speedup with GPU acceleration on large point clouds
 
 ## Project Structure
 
@@ -17,23 +17,24 @@ A C++ and CUDA implementation of the Iterative Closest Point (ICP) algorithm. Th
 
 ## Prerequisites
 
-### For Windows (CPU + Visualization)
+### For Windows 
 - Windows 10/11
 - Visual Studio 2022 (C++ Desktop Development workload)
 - CMake 3.18+
 - Open3D libraries (e.g., `D:/Open3D/open3d-devel-windows-amd64-0.19.0/CMake`)
 
-### For Linux/Remote GPU (CUDA)
+### For Linux 
 - CUDA Toolkit 11.0+ with compatible NVIDIA GPU
 - CMake 3.18+
-- Eigen3 library or local copy
+- Eigen3 library 
 
 ## Installation
 
-### Eigen3 Setup (for Linux)
+### Eigen3 and OPEN3D Setup (for Linux)
 
 ```bash
 sudo apt-get install libeigen3-dev
+sudo apt-get install libopen3d-dev
 ```
 ### OPEN3D Setup (for Windows)
 Follow the guide here 
@@ -44,7 +45,7 @@ https://www.open3d.org/docs/release/getting_started.html#c
 
 ## Build Instructions
 
-### Windows (CPU Version)
+### Windows 
 ```cmd
 # Open x64 Native Tools Command Prompt for VS 2022
 mkdir build
@@ -53,7 +54,7 @@ cmake ..
 cmake --build . --config Release
 ```
 
-### Linux (CUDA Version)
+### Linux 
 ```bash
 mkdir build && cd build
 cmake ..
@@ -79,22 +80,35 @@ Create a transformed target point cloud:
 
 ### 2. Run ICP Alignment
 
-**CPU Version (Windows):**
+**CPU Version:**
+
+**Windows:**
 ```cmd
 .\build\Release\icp_engine.exe bun000.ply bun000_target.ply
 ```
 
-**CUDA Version (Linux):**
+**Linux:**
+```bash
+./build/icp_engine bun000.ply bun000_target.ply
+```
+
+**CUDA Version:**
+
+Not tested on Windows.
+
+**Linux:**
 ```bash
 ./build/icp_cuda bun000.ply bun000_target.ply
 ```
 
 **Output:** Creates `frames/` directory with intermediate alignment steps (`iter_0.ply`, `iter_5.ply`, etc.)
 
-### 3. Visualize Results (Windows only)
+### 3. Visualize Results 
 ```cmd
 .\build\Release\icp_vis.exe bun000_target.ply
 ```
+
+Not tested on Linux.
 
 Opens an interactive Open3D window showing the alignment animation.
 
@@ -116,6 +130,5 @@ Opens an interactive Open3D window showing the alignment animation.
 
 
 ## TODO
-- Fair Performance Comparison (both icp_engine and icp_cuda on the same machine!)
 - KD-Tree for O(N log N) nearest neighbor search
 - Multi-stream CUDA processing

@@ -36,12 +36,24 @@ A C++ and CUDA implementation of the Iterative Closest Point (ICP) algorithm. Th
 sudo apt-get install libeigen3-dev
 sudo apt-get install libopen3d-dev
 ```
+If the sudo command does not work, download pre-built release (https://github.com/isl-org/Open3D/releases)
+
+```bash
+cd ~
+wget https://github.com/isl-org/Open3D/releases/download/v0.18.0/open3d-devel-linux-x86_64-cxx11-abi-0.18.0.tar.xz
+tar -xf open3d-devel-linux-x86_64-cxx11-abi-0.18.0.tar.xz
+```
+Update CMakeLists.txt to point to it, e.g:
+set(Open3D_DIR "$ENV{HOME}/open3d-devel-linux-x86_64-cxx11-abi-0.18.0/lib/cmake/Open3D")
+
 ### OPEN3D Setup (for Windows)
 Follow the guide here 
 https://www.open3d.org/docs/release/getting_started.html#c
 
 (Note: Eigen is also installed with Open3D, no need for Eigen installation if you are on Windows)
 
+Update CMakeLists.txt to point to it, e.g:
+set(Open3D_DIR "D:/Open3D/open3d-devel-windows-amd64-0.19.0/CMake")
 
 ## Build Instructions
 
@@ -80,16 +92,17 @@ Create a transformed target point cloud:
 
 ### 2. Run ICP Alignment
 
-**CPU Version:**
+**CPU Version:** Remove kd_tree argument for brute force nearest neighbor search
 
 **Windows:**
-```cmd
-.\build\Release\icp_engine.exe bun000.ply bun000_target.ply
+
+```cmds
+.\build\Release\icp_engine.exe bun000.ply bun000_target.ply kd_tree
 ```
 
 **Linux:**
 ```bash
-./build/icp_engine bun000.ply bun000_target.ply
+./build/icp_engine bun000.ply bun000_target.ply kd_tree
 ```
 
 **CUDA Version:**
@@ -99,6 +112,10 @@ Not tested on Windows.
 **Linux:**
 ```bash
 ./build/icp_cuda bun000.ply bun000_target.ply
+```
+
+```bash
+./build/icp_cuda_kdtree bun000.ply bun000_target.ply
 ```
 
 **Output:** Creates `frames/` directory with intermediate alignment steps (`iter_0.ply`, `iter_5.ply`, etc.)
@@ -128,7 +145,3 @@ Opens an interactive Open3D window showing the alignment animation.
 - GPU-accelerated covariance matrix calculation
 - Parallel point transformation
 
-
-## TODO
-- KD-Tree for O(N log N) nearest neighbor search
-- Multi-stream CUDA processing

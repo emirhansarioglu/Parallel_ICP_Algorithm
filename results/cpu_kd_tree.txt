@@ -1,0 +1,19 @@
+=== CPU ICP BENCHMARK (KD-Tree) ===
+Source points: 40256
+Target points: 40256
+Method: O(N log N) with KD-Tree
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    7247 ms (7.247 s)
+Average time per iter:   142.098 ms
+
+KD-Tree build total:     515.625 ms (7.11501%)
+Nearest Neighbor total:  5298.81 ms (73.1174%)
+Transform compute total: 13.41 ms (0.185042%)
+Apply transform total:   3.781 ms (0.0521733%)
+
+Avg KD-Tree per iter:    10.1103 ms
+Avg NN per iter:         103.898 ms
+Avg Transform per iter:  0.262941 ms
+Avg Apply per iter:      0.0741373 ms

@@ -1,0 +1,17 @@
+=== CPU ICP BENCHMARK (Brute-Force) ===
+Source points: 40256
+Target points: 40256
+Method: O(N^2) Brute-Force
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    105185 ms (105.185 s)
+Average time per iter:   2062.44 ms
+
+Nearest Neighbor total:  103814 ms (98.6969%)
+Transform compute total: 13.4746 ms (0.0128104%)
+Apply transform total:   3.6558 ms (0.00347561%)
+
+Avg NN per iter:         2035.57 ms
+Avg Transform per iter:  0.264208 ms
+Avg Apply per iter:      0.0716824 ms

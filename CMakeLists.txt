@@ -20,6 +20,8 @@ endif()
 # Try to find Open3D (for local Windows system)
 if(WIN32)
     set(Open3D_DIR "D:/Open3D/open3d-devel-windows-amd64-0.19.0/CMake")
+else()
+    set(Open3D_DIR "/workspace/open3d-devel-linux-x86_64-cxx11-abi-0.18.0/lib/cmake/Open3D")
 endif()
 find_package(Open3D QUIET)
 
@@ -64,7 +66,17 @@ if(CUDA_AVAILABLE AND (Eigen3_FOUND OR EIGEN3_INCLUDE_DIR))
     endif()
     
     set_target_properties(icp_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+    add_executable(icp_cuda_kdtree src/icp_cuda_kdtree.cu)
     
+    if(Eigen3_FOUND)
+        target_link_libraries(icp_cuda_kdtree Eigen3::Eigen)
+    else()
+        target_include_directories(icp_cuda_kdtree PRIVATE ${EIGEN3_INCLUDE_DIR})
+    endif()
+    
+    set_target_properties(icp_cuda_kdtree PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
     if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
         set(CMAKE_CUDA_ARCHITECTURES 60 70 75 80 86)
     endif()

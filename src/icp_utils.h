@@ -10,6 +10,14 @@
 
 struct Point3D {
     float x, y, z;
+    
+    float& operator[](int idx) {
+        return (idx == 0) ? x : (idx == 1) ? y : z;
+    }
+    
+    const float& operator[](int idx) const {
+        return (idx == 0) ? x : (idx == 1) ? y : z;
+    }
 };
 
 // Basic PLY Loader (ASCII)

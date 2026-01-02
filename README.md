@@ -1,6 +1,6 @@
 # 3D Point Cloud Alignment (ICP)
 
-A C++ and CUDA implementation of the Iterative Closest Point (ICP) algorithm. This project demonstrates point cloud alignment and compares CPU vs GPU performance using parallel computing.
+A C++ and CUDA implementation of the Iterative Closest Point (ICP) algorithm, both with brute force approach and KD-Tree implementation. This project demonstrates point cloud alignment and compares CPU vs GPU performance using parallel computing.
 
 ## Features
 - **CPU Implementation**: Uses Eigen for SVD-based rigid transformations
@@ -11,8 +11,9 @@ A C++ and CUDA implementation of the Iterative Closest Point (ICP) algorithm. Th
 ## Project Structure
 
 - **generate_data**: Creates a transformed "target" point cloud from a source .ply file
-- **icp_engine**: CPU-based ICP implementation with frame-by-frame snapshots
+- **icp_engine**: CPU-based ICP implementation (with KD-Tree option) with frame-by-frame snapshots
 - **icp_cuda**: GPU-accelerated ICP using CUDA
+- **icp_cuda_kdtree**: GPU-accelerated ICP with KD-Tree using CUDA
 - **icp_vis**: Interactive visualization tool for replaying alignment steps
 
 ## Prerequisites

@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     auto source = std::make_shared<open3d::geometry::PointCloud>();
     vis.AddGeometry(source);
 
-    for (int i = 0; i <= 50; i += 5) {
+    for (int i = 0; i <= 50; i += 2) {
         std::string path = "frames/iter_" + std::to_string(i) + ".ply";
         auto frame = open3d::io::CreatePointCloudFromFile(path);
         if (frame->IsEmpty()) continue;
@@ -36,7 +36,6 @@ int main(int argc, char* argv[]) {
         vis.UpdateGeometry(source);
         vis.PollEvents();
         vis.UpdateRender();
-        
         std::cout << "Playing Frame: " << i << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }

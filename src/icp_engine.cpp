@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
 
     for (int iter = 0; iter <= 50; ++iter) {
 
-        if (iter % 5 == 0) {
+        if (iter % 2 == 0) {
             savePLY("frames/iter_" + std::to_string(iter) + ".ply", source);
         }
 

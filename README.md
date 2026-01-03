@@ -81,15 +81,15 @@ Create a transformed target point cloud:
 
 **Windows:**
 ```cmd
-.\build\Release\generate_data.exe bun000.ply
+.\build\Release\generate_data.exe data/bun000.ply
 ```
 
 **Linux:**
 ```bash
-./build/generate_data bun000.ply
+./build/generate_data data/bun000.ply
 ```
 
-**Output:** `bun000_target.ply`
+**Output:** `data/bun000_target.ply`
 
 ### 2. Run ICP Alignment
 
@@ -98,12 +98,12 @@ Create a transformed target point cloud:
 **Windows:**
 
 ```cmds
-.\build\Release\icp_engine.exe bun000.ply bun000_target.ply kd_tree
+.\build\Release\icp_engine.exe data/bun000.ply data/bun000_target.ply kd_tree
 ```
 
 **Linux:**
 ```bash
-./build/icp_engine bun000.ply bun000_target.ply kd_tree
+./build/icp_engine data/bun000.ply data/bun000_target.ply kd_tree
 ```
 
 **CUDA Version:**
@@ -112,18 +112,18 @@ Not tested on Windows.
 
 **Linux:**
 ```bash
-./build/icp_cuda bun000.ply bun000_target.ply
+./build/icp_cuda data/bun000.ply data/bun000_target.ply
 ```
 
 ```bash
-./build/icp_cuda_kdtree bun000.ply bun000_target.ply
+./build/icp_cuda_kdtree data/bun000.ply data/bun000_target.ply
 ```
 
 **Output:** Creates `frames/` directory with intermediate alignment steps (`iter_0.ply`, `iter_5.ply`, etc.)
 
 ### 3. Visualize Results 
 ```cmd
-.\build\Release\icp_vis.exe bun000_target.ply
+.\build\Release\icp_vis.exe data/bun000_target.ply
 ```
 
 Not tested on Linux.

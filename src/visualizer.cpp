@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
         vis.UpdateRender();
         
         std::cout << "Playing Frame: " << i << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
     vis.Run(); // Keep window open at the end

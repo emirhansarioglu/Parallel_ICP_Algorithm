@@ -20,8 +20,8 @@ bool createDirectory(const char* path) {
 }
 
 int main(int argc, char* argv[]) {
-    std::string source_file = (argc > 1) ? argv[1] : "bun000.ply";
-    std::string target_file = (argc > 2) ? argv[2] : "bun000_target.ply";
+    std::string source_file = (argc > 1) ? argv[1] : "data/bun000.ply";
+    std::string target_file = (argc > 2) ? argv[2] : "data/bun000_target.ply";
     std::string method = (argc > 3) ? argv[3] : "brute";  // "brute" or "kdtree"
 
     auto source = loadPLY(source_file);

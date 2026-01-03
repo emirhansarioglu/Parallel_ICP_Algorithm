@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <sys/stat.h>
 #include <chrono>
 #include <algorithm>
@@ -14,6 +15,12 @@
 
 struct Point3D {
     float x, y, z;
+    unsigned char r, g, b;
+    
+    Point3D() : x(0), y(0), z(0), r(255), g(255), b(255) {}
+    Point3D(float x_, float y_, float z_) : x(x_), y(y_), z(z_), r(255), g(255), b(255) {}
+    Point3D(float x_, float y_, float z_, unsigned char r_, unsigned char g_, unsigned char b_) 
+        : x(x_), y(y_), z(z_), r(r_), g(g_), b(b_) {}
     
     __host__ __device__ float& operator[](int idx) {
         return (idx == 0) ? x : (idx == 1) ? y : z;
@@ -87,7 +94,7 @@ __global__ void findNearestKDTree(
 }
 
 // ============================================================================
-// OTHER CUDA KERNELS (same as before)
+// OTHER CUDA KERNELS
 // ============================================================================
 
 __global__ void computeCentroid(const float3* points, int n, float3* partial_sums) {
@@ -209,31 +216,146 @@ bool createDirectory(const char* path) {
     return true;
 }
 
+// PLY Header parser
+struct PLYHeader {
+    int vertex_count = 0;
+    bool is_binary = false;
+    bool has_color = false;
+};
+
+PLYHeader parsePLYHeader(std::ifstream& file) {
+    PLYHeader header;
+    std::string line;
+    
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string token;
+        ss >> token;
+        
+        if (token == "format") {
+            std::string format_type;
+            ss >> format_type;
+            header.is_binary = (format_type.find("binary") != std::string::npos);
+        }
+        else if (token == "element") {
+            std::string element_type;
+            int count;
+            ss >> element_type >> count;
+            if (element_type == "vertex") {
+                header.vertex_count = count;
+            }
+        }
+        else if (token == "property") {
+            std::string prop_type, prop_name;
+            ss >> prop_type >> prop_name;
+            if (prop_name.find("red") != std::string::npos || 
+                prop_name.find("diffuse_red") != std::string::npos) {
+                header.has_color = true;
+            }
+        }
+        else if (token == "end_header") {
+            break;
+        }
+    }
+    
+    return header;
+}
+
+// Load PLY with color support
 std::vector<Point3D> loadPLY(const std::string& filename) {
     std::vector<Point3D> points;
-    std::ifstream file(filename);
-    if (!file.is_open()) return points;
-
-    std::string line;
-    bool header = true;
-    while (std::getline(file, line)) {
-        if (header) {
-            if (line == "end_header") header = false;
-            continue;
-        }
-        std::stringstream ss(line);
-        Point3D p;
-        if (ss >> p.x >> p.y >> p.z) points.push_back(p);
+    
+    std::ifstream file(filename, std::ios::binary);
+    if (!file.is_open()) {
+        std::cerr << "Error: Cannot open file " << filename << std::endl;
+        return points;
     }
+    
+    PLYHeader header = parsePLYHeader(file);
+    
+    if (header.vertex_count == 0) {
+        std::cerr << "Error: No vertices found in PLY header" << std::endl;
+        return points;
+    }
+    
+    points.reserve(header.vertex_count);
+    
+    if (header.is_binary) {
+        // Binary format
+        for (int i = 0; i < header.vertex_count; ++i) {
+            Point3D p;
+            file.read(reinterpret_cast<char*>(&p.x), sizeof(float));
+            file.read(reinterpret_cast<char*>(&p.y), sizeof(float));
+            file.read(reinterpret_cast<char*>(&p.z), sizeof(float));
+            
+            if (header.has_color) {
+                file.read(reinterpret_cast<char*>(&p.r), sizeof(unsigned char));
+                file.read(reinterpret_cast<char*>(&p.g), sizeof(unsigned char));
+                file.read(reinterpret_cast<char*>(&p.b), sizeof(unsigned char));
+            }
+            
+            points.push_back(p);
+        }
+    } else {
+        // ASCII format
+        std::string line;
+        while (std::getline(file, line) && points.size() < static_cast<size_t>(header.vertex_count)) {
+            std::stringstream ss(line);
+            Point3D p;
+            
+            if (ss >> p.x >> p.y >> p.z) {
+                if (header.has_color) {
+                    int r, g, b;
+                    if (ss >> r >> g >> b) {
+                        p.r = static_cast<unsigned char>(r);
+                        p.g = static_cast<unsigned char>(g);
+                        p.b = static_cast<unsigned char>(b);
+                    }
+                }
+                points.push_back(p);
+            }
+        }
+    }
+    
+    file.close();
+    std::cout << "Loaded " << points.size() << " vertices from " << filename << std::endl;
     return points;
 }
 
-void savePLY(const std::string& filename, const std::vector<Point3D>& points) {
+// Save PLY with color support
+void savePLY(const std::string& filename, const std::vector<Point3D>& points, bool save_colors = true) {
     std::ofstream file(filename);
-    file << "ply\nformat ascii 1.0\nelement vertex " << points.size() << "\n";
-    file << "property float x\nproperty float y\nproperty float z\nend_header\n";
-    for (const auto& p : points) 
-        file << p.x << " " << p.y << " " << p.z << "\n";
+    if (!file.is_open()) {
+        std::cerr << "Error: Cannot create file " << filename << std::endl;
+        return;
+    }
+    
+    file << "ply\n";
+    file << "format ascii 1.0\n";
+    file << "element vertex " << points.size() << "\n";
+    file << "property float x\n";
+    file << "property float y\n";
+    file << "property float z\n";
+    
+    if (save_colors) {
+        file << "property uchar diffuse_red\n";
+        file << "property uchar diffuse_green\n";
+        file << "property uchar diffuse_blue\n";
+    }
+    
+    file << "end_header\n";
+    
+    for (const auto& p : points) {
+        file << p.x << " " << p.y << " " << p.z;
+        if (save_colors) {
+            file << " " << static_cast<int>(p.r) 
+                 << " " << static_cast<int>(p.g) 
+                 << " " << static_cast<int>(p.b);
+        }
+        file << "\n";
+    }
+    
+    file.close();
 }
 
 std::vector<float3> toFloat3(const std::vector<Point3D>& points) {
@@ -244,15 +366,23 @@ std::vector<float3> toFloat3(const std::vector<Point3D>& points) {
     return result;
 }
 
-std::vector<Point3D> toPoint3D(const std::vector<float3>& points) {
+std::vector<Point3D> toPoint3D(const std::vector<float3>& points, const std::vector<Point3D>& original) {
     std::vector<Point3D> result(points.size());
     for (size_t i = 0; i < points.size(); ++i) {
-        result[i] = {points[i].x, points[i].y, points[i].z};
+        result[i].x = points[i].x;
+        result[i].y = points[i].y;
+        result[i].z = points[i].z;
+        // Preserve original colors
+        if (i < original.size()) {
+            result[i].r = original[i].r;
+            result[i].g = original[i].g;
+            result[i].b = original[i].b;
+        }
     }
     return result;
 }
 
-// CPU KD-Tree builder
+// CPU KD-Tree builder (uses only spatial coordinates, ignores color)
 int buildKDTreeCPU(std::vector<Point3D>& points, std::vector<int>& indices, 
                    std::vector<KDNode>& nodes, int start, int end, int depth) {
     if (start >= end) return -1;
@@ -350,8 +480,8 @@ Eigen::Matrix4f findRigidTransform(float3* d_source, float3* d_matched, int n,
 // ============================================================================
 
 int main(int argc, char* argv[]) {
-    std::string source_file = (argc > 1) ? argv[1] : "bun000.ply";
-    std::string target_file = (argc > 2) ? argv[2] : "bun000_target.ply";
+    std::string source_file = (argc > 1) ? argv[1] : "data/bun000.ply";
+    std::string target_file = (argc > 2) ? argv[2] : "data/bun000_target.ply";
 
     auto source_cpu = loadPLY(source_file);
     auto target_cpu = loadPLY(target_file);
@@ -410,7 +540,7 @@ int main(int argc, char* argv[]) {
             CUDA_CHECK(cudaMemcpy(source_f3.data(), d_source, 
                                   n_source * sizeof(float3), cudaMemcpyDeviceToHost));
             savePLY("frames/iter_" + std::to_string(iter) + ".ply", 
-                    toPoint3D(source_f3));
+                    toPoint3D(source_f3, source_cpu));
             auto save_end = std::chrono::high_resolution_clock::now();
             total_memcpy_time += std::chrono::duration<double, std::milli>(save_end - save_start).count();
         }
@@ -485,7 +615,6 @@ int main(int argc, char* argv[]) {
     // Final result
     CUDA_CHECK(cudaMemcpy(source_f3.data(), d_source, 
                           n_source * sizeof(float3), cudaMemcpyDeviceToHost));
-    savePLY("frames/final_aligned.ply", toPoint3D(source_f3));
 
     CUDA_CHECK(cudaFree(d_source));
     CUDA_CHECK(cudaFree(d_matched));

@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
 
     // 3. Create the Target filename (e.g., bun_000.ply -> bun_000_target.ply)
     fs::path p(source_path);
-    std::string target_path = p.stem().string() + "_target.ply";
+    std::string target_path = "data/" + p.stem().string() + "_target.ply";
 
     // 4. Create a "Hard" Transformation (Target is a rotated/shifted version)
     Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();

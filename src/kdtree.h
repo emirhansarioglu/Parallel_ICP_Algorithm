@@ -8,10 +8,10 @@
 #include <cmath>
 
 struct KDNode {
-    Point3D point;
-    int left;   // Index to left child (-1 if none)
-    int right;  // Index to right child (-1 if none)
-    int axis;   // Split axis (0=x, 1=y, 2=z)
+    Point3D point;  // Stores full point with color
+    int left;       // Index to left child (-1 if none)
+    int right;      // Index to right child (-1 if none)
+    int axis;       // Split axis (0=x, 1=y, 2=z)
 };
 
 class KDTree {
@@ -25,7 +25,7 @@ private:
         int axis = depth % 3;
         int mid = start + (end - start) / 2;
         
-        // Partition around median
+        // Partition around median (using spatial coordinates only)
         std::nth_element(
             indices.begin() + start,
             indices.begin() + mid,
@@ -35,7 +35,7 @@ private:
         
         int nodeIdx = nodes.size();
         nodes.push_back(KDNode());
-        nodes[nodeIdx].point = points[indices[mid]];
+        nodes[nodeIdx].point = points[indices[mid]];  // Preserves color
         nodes[nodeIdx].axis = axis;
         nodes[nodeIdx].left = buildRecursive(indices, start, mid, depth + 1);
         nodes[nodeIdx].right = buildRecursive(indices, mid + 1, end, depth + 1);
@@ -49,7 +49,7 @@ private:
         
         const KDNode& node = nodes[nodeIdx];
         
-        // Check current node
+        // Check current node (spatial distance only, ignore color)
         float dx = query.x - node.point.x;
         float dy = query.y - node.point.y;
         float dz = query.z - node.point.z;
@@ -57,10 +57,10 @@ private:
         
         if (dist < bestDist) {
             bestDist = dist;
-            best = node.point;
+            best = node.point;  // Returns point with its original color
         }
         
-        // Determine which side to search first
+        // Determine which side to search first (spatial coordinates only)
         float diff = query[node.axis] - node.point[node.axis];
         int nearIdx = (diff < 0) ? node.left : node.right;
         int farIdx = (diff < 0) ? node.right : node.left;
@@ -76,7 +76,7 @@ private:
     
 public:
     void build(const std::vector<Point3D>& pts) {
-        points = pts;
+        points = pts;  // Stores all points with colors
         nodes.clear();
         nodes.reserve(points.size());
         
@@ -89,7 +89,7 @@ public:
     }
     
     Point3D findNearest(const Point3D& query) const {
-        Point3D best = nodes[0].point;
+        Point3D best = nodes[0].point;  // Returns with color preserved
         float bestDist = std::numeric_limits<float>::max();
         searchRecursive(0, query, best, bestDist);
         return best;

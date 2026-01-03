@@ -1,0 +1,21 @@
+Loaded 183408 vertices from data/lion.ply
+Loaded 183408 vertices from data/lion_target.ply
+=== CPU ICP BENCHMARK (KD-Tree) ===
+Source points: 183408
+Target points: 183408
+Method: O(N log N) with KD-Tree
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    191491 ms (191.491 s)
+Average time per iter:   3754.73 ms
+
+KD-Tree build total:     2622.91 ms (1.36973%)
+Nearest Neighbor total:  179359 ms (93.6643%)
+Transform compute total: 64.6507 ms (0.0337617%)
+Apply transform total:   18.7664 ms (0.00980013%)
+
+Avg KD-Tree per iter:    51.4296 ms
+Avg NN per iter:         3516.84 ms
+Avg Transform per iter:  1.26766 ms
+Avg Apply per iter:      0.367969 ms

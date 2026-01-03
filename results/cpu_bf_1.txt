@@ -1,0 +1,19 @@
+Loaded 25914 vertices from data/dragon.ply
+Loaded 25914 vertices from data/dragon_target.ply
+=== CPU ICP BENCHMARK (Brute-Force) ===
+Source points: 25914
+Target points: 25914
+Method: O(N^2) Brute-Force
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    44459.6 ms (44.4596 s)
+Average time per iter:   871.757 ms
+
+Nearest Neighbor total:  43105.2 ms (96.9537%)
+Transform compute total: 8.9596 ms (0.0201522%)
+Apply transform total:   2.42 ms (0.00544314%)
+
+Avg NN per iter:         845.201 ms
+Avg Transform per iter:  0.175678 ms
+Avg Apply per iter:      0.047451 ms

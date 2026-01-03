@@ -1,0 +1,21 @@
+Loaded 75781 vertices from data/santa.ply
+Loaded 75781 vertices from data/santa_target.ply
+=== CPU ICP BENCHMARK (KD-Tree) ===
+Source points: 75781
+Target points: 75781
+Method: O(N log N) with KD-Tree
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    36285.7 ms (36.2857 s)
+Average time per iter:   711.484 ms
+
+KD-Tree build total:     1050.39 ms (2.89478%)
+Nearest Neighbor total:  31356.5 ms (86.4157%)
+Transform compute total: 26.9096 ms (0.0741604%)
+Apply transform total:   7.6662 ms (0.0211274%)
+
+Avg KD-Tree per iter:    20.5959 ms
+Avg NN per iter:         614.833 ms
+Avg Transform per iter:  0.527639 ms
+Avg Apply per iter:      0.150318 ms

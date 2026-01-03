@@ -1,0 +1,19 @@
+Loaded 40256 vertices from data/bun000.ply
+Loaded 40256 vertices from data/bun000_target.ply
+=== CPU ICP BENCHMARK (Brute-Force) ===
+Source points: 40256
+Target points: 40256
+Method: O(N^2) Brute-Force
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    106906 ms (106.906 s)
+Average time per iter:   2096.19 ms
+
+Nearest Neighbor total:  104912 ms (98.1355%)
+Transform compute total: 13.2565 ms (0.0124002%)
+Apply transform total:   3.6589 ms (0.00342255%)
+
+Avg NN per iter:         2057.1 ms
+Avg Transform per iter:  0.259931 ms
+Avg Apply per iter:      0.0717431 ms

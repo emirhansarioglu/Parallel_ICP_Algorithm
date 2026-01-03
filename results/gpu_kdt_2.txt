@@ -1,0 +1,23 @@
+Loaded 40256 vertices from data/bun000.ply
+Loaded 40256 vertices from data/bun000_target.ply
+=== CUDA ICP BENCHMARK (with KD-Tree) ===
+Source points: 40256
+Target points: 40256
+GPU: NVIDIA GeForce RTX 3060
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    5859.57 ms (5.85957 s)
+Average time per iter:   114.894 ms
+
+KD-Tree build total:     2981.07 ms (50.8753%)
+KD-Tree upload total:    8.11131 ms (0.138428%)
+Nearest Neighbor total:  1969.21 ms (33.6067%)
+Centroid compute total:  4.34381 ms (0.0741319%)
+Transform compute total: 5.14319 ms (0.0877741%)
+Apply transform total:   1.36679 ms (0.0233258%)
+File I/O & memcpy total: 889.302 ms (15.1769%)
+
+Avg KD-Tree per iter:    58.4524 ms
+Avg Upload per iter:     0.159045 ms
+Avg NN per iter:         38.612 ms

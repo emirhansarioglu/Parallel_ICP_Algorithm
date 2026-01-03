@@ -1,0 +1,21 @@
+Loaded 40256 vertices from data/bun000.ply
+Loaded 40256 vertices from data/bun000_target.ply
+=== CPU ICP BENCHMARK (KD-Tree) ===
+Source points: 40256
+Target points: 40256
+Method: O(N log N) with KD-Tree
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    7540.99 ms (7.54099 s)
+Average time per iter:   147.863 ms
+
+KD-Tree build total:     478.29 ms (6.34253%)
+Nearest Neighbor total:  5142.52 ms (68.1942%)
+Transform compute total: 12.5701 ms (0.16669%)
+Apply transform total:   3.5207 ms (0.0466875%)
+
+Avg KD-Tree per iter:    9.37823 ms
+Avg NN per iter:         100.834 ms
+Avg Transform per iter:  0.246473 ms
+Avg Apply per iter:      0.0690333 ms

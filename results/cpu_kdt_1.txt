@@ -1,0 +1,21 @@
+Loaded 25914 vertices from data/dragon.ply
+Loaded 25914 vertices from data/dragon_target.ply
+=== CPU ICP BENCHMARK (KD-Tree) ===
+Source points: 25914
+Target points: 25914
+Method: O(N log N) with KD-Tree
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    4711.1 ms (4.7111 s)
+Average time per iter:   92.3746 ms
+
+KD-Tree build total:     310.532 ms (6.59149%)
+Nearest Neighbor total:  3134.36 ms (66.5314%)
+Transform compute total: 7.9926 ms (0.169655%)
+Apply transform total:   2.3395 ms (0.0496593%)
+
+Avg KD-Tree per iter:    6.08886 ms
+Avg NN per iter:         61.4581 ms
+Avg Transform per iter:  0.156718 ms
+Avg Apply per iter:      0.0458725 ms

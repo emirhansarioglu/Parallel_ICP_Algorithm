@@ -1,0 +1,22 @@
+Loaded 75781 vertices from data/santa.ply
+Loaded 75781 vertices from data/santa_target.ply
+=== CUDA ICP BENCHMARK ===
+Source points: 75781
+Target points: 75781
+GPU: NVIDIA GeForce RTX 3060
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    2492.1 ms (2.4921 s)
+Average time per iter:   48.8648 ms
+
+Nearest Neighbor total:  1359.63 ms (54.5575%)
+Centroid compute total:  2.96995 ms (0.119174%)
+Transform compute total: 1.41786 ms (0.0568941%)
+Apply transform total:   0.898531 ms (0.0360551%)
+File I/O & memcpy total: 1127.18 ms (45.2301%)
+
+Avg NN per iter:         26.6594 ms
+Avg Centroid per iter:   0.0582343 ms
+Avg Transform per iter:  0.0278012 ms
+Avg Apply per iter:      0.0176183 ms

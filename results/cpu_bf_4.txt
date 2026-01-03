@@ -1,0 +1,19 @@
+Loaded 183408 vertices from data/lion.ply
+Loaded 183408 vertices from data/lion_target.ply
+=== CPU ICP BENCHMARK (Brute-Force) ===
+Source points: 183408
+Target points: 183408
+Method: O(N^2) Brute-Force
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    2.1611e+06 ms (2161.1 s)
+Average time per iter:   42374.5 ms
+
+Nearest Neighbor total:  2.15146e+06 ms (99.5538%)
+Transform compute total: 61.6426 ms (0.00285237%)
+Apply transform total:   18.2564 ms (0.000844773%)
+
+Avg NN per iter:         42185.4 ms
+Avg Transform per iter:  1.20868 ms
+Avg Apply per iter:      0.357969 ms

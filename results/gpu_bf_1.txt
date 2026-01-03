@@ -1,0 +1,22 @@
+Loaded 25914 vertices from data/dragon.ply
+Loaded 25914 vertices from data/dragon_target.ply
+=== CUDA ICP BENCHMARK ===
+Source points: 25914
+Target points: 25914
+GPU: NVIDIA GeForce RTX 3060
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    632.39 ms (0.63239 s)
+Average time per iter:   12.3998 ms
+
+Nearest Neighbor total:  232.939 ms (36.8347%)
+Centroid compute total:  2.63186 ms (0.416176%)
+Transform compute total: 1.55029 ms (0.245148%)
+Apply transform total:   0.919373 ms (0.145381%)
+File I/O & memcpy total: 394.339 ms (62.3569%)
+
+Avg NN per iter:         4.56743 ms
+Avg Centroid per iter:   0.0516051 ms
+Avg Transform per iter:  0.0303979 ms
+Avg Apply per iter:      0.0180269 ms

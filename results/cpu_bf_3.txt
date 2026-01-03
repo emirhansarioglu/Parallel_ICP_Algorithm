@@ -1,0 +1,19 @@
+Loaded 75781 vertices from data/santa.ply
+Loaded 75781 vertices from data/santa_target.ply
+=== CPU ICP BENCHMARK (Brute-Force) ===
+Source points: 75781
+Target points: 75781
+Method: O(N^2) Brute-Force
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    378977 ms (378.977 s)
+Average time per iter:   7430.92 ms
+
+Nearest Neighbor total:  374842 ms (98.9089%)
+Transform compute total: 28.2651 ms (0.00745826%)
+Apply transform total:   7.6566 ms (0.00202033%)
+
+Avg NN per iter:         7349.84 ms
+Avg Transform per iter:  0.554218 ms
+Avg Apply per iter:      0.150129 ms

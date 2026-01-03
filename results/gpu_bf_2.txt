@@ -1,0 +1,22 @@
+Loaded 40256 vertices from data/bun000.ply
+Loaded 40256 vertices from data/bun000_target.ply
+=== CUDA ICP BENCHMARK ===
+Source points: 40256
+Target points: 40256
+GPU: NVIDIA GeForce RTX 3060
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    1197.22 ms (1.19722 s)
+Average time per iter:   23.4749 ms
+
+Nearest Neighbor total:  412.006 ms (34.4136%)
+Centroid compute total:  2.12129 ms (0.177185%)
+Transform compute total: 1.41774 ms (0.11842%)
+Apply transform total:   0.825636 ms (0.0689628%)
+File I/O & memcpy total: 780.84 ms (65.2211%)
+
+Avg NN per iter:         8.07856 ms
+Avg Centroid per iter:   0.041594 ms
+Avg Transform per iter:  0.0277989 ms
+Avg Apply per iter:      0.0161889 ms

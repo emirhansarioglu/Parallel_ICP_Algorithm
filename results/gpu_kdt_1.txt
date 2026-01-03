@@ -1,0 +1,23 @@
+Loaded 25914 vertices from data/dragon.ply
+Loaded 25914 vertices from data/dragon_target.ply
+=== CUDA ICP BENCHMARK (with KD-Tree) ===
+Source points: 25914
+Target points: 25914
+GPU: NVIDIA GeForce RTX 3060
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    3303.14 ms (3.30314 s)
+Average time per iter:   64.7675 ms
+
+KD-Tree build total:     1675.06 ms (50.711%)
+KD-Tree upload total:    2.96217 ms (0.0896774%)
+Nearest Neighbor total:  1205.84 ms (36.5058%)
+Centroid compute total:  2.3645 ms (0.0715835%)
+Transform compute total: 3.63894 ms (0.110166%)
+Apply transform total:   1.20594 ms (0.0365088%)
+File I/O & memcpy total: 411.702 ms (12.4639%)
+
+Avg KD-Tree per iter:    32.8443 ms
+Avg Upload per iter:     0.0580818 ms
+Avg NN per iter:         23.6439 ms

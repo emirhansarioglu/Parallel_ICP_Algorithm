@@ -1,8 +1,14 @@
 # 3D Point Cloud Alignment (ICP)
-
-![](https://github.com/emirhansarioglu/Parallel_ICP_Algorithm/blob/master/capture/bun000.gif)
-
 A C++ and CUDA implementation of the Iterative Closest Point (ICP) algorithm, both with brute force approach and KD-Tree implementation. This project demonstrates point cloud alignment and compares CPU vs GPU performance using parallel computing.
+
+![](./capture/bunny.gif)
+
+![](./capture/lion.gif)
+
+Computerphile has videos video on both ICP and KD-Tree:
+
+[![ICP_Algorithm](https://img.youtube.com/vi/4uWSo8v3iQA/0.jpg)](https://www.youtube.com/watch?v=4uWSo8v3iQA)
+[![KD-Tree](https://img.youtube.com/vi/BK5x7IUTIyU/0.jpg)](https://www.youtube.com/watch?v=BK5x7IUTIyU)
 
 ## Features
 - **CPU Implementation**: Uses Eigen for SVD-based rigid transformations
@@ -10,13 +16,20 @@ A C++ and CUDA implementation of the Iterative Closest Point (ICP) algorithm, bo
 - **Visualization**: Open3D-based replay tool (Tested on Windows only)
 - **Performance Comparison**: Demonstrates 300x speedup with GPU acceleration on large point clouds
 
-## Project Structure
+## Algorithm Details
 
-- **generate_data**: Creates a transformed "target" point cloud from a source .ply file
-- **icp_engine**: CPU-based ICP implementation (with KD-Tree option) with frame-by-frame snapshots
-- **icp_cuda**: GPU-accelerated ICP using CUDA
-- **icp_cuda_kdtree**: GPU-accelerated ICP with KD-Tree using CUDA
-- **icp_vis**: Interactive visualization tool for replaying alignment steps
+### ICP Pipeline
+1. **Nearest Neighbor Search**: Find closest target point for each source point
+2. **Centroid Computation**: Calculate centers of mass for both point sets
+3. **SVD Transformation**: Compute optimal rigid transformation (rotation + translation)
+4. **Apply Transform**: Update source points
+5. **Iterate**: Repeat until convergence (50 iterations)
+
+### CUDA Optimizations
+- Parallel nearest neighbor search (each thread processes one source point)
+- Shared memory reductions for centroid computation
+- GPU-accelerated covariance matrix calculation
+- Parallel point transformation
 
 ## Prerequisites
 
@@ -131,20 +144,4 @@ Not tested on Windows.
 Not tested on Linux.
 
 Opens an interactive Open3D window showing the alignment animation.
-
-
-## Algorithm Details
-
-### ICP Pipeline
-1. **Nearest Neighbor Search**: Find closest target point for each source point
-2. **Centroid Computation**: Calculate centers of mass for both point sets
-3. **SVD Transformation**: Compute optimal rigid transformation (rotation + translation)
-4. **Apply Transform**: Update source points
-5. **Iterate**: Repeat until convergence (50 iterations)
-
-### CUDA Optimizations
-- Parallel nearest neighbor search (each thread processes one source point)
-- Shared memory reductions for centroid computation
-- GPU-accelerated covariance matrix calculation
-- Parallel point transformation
 

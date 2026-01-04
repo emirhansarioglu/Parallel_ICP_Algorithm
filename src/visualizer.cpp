@@ -19,11 +19,13 @@ int main(int argc, char* argv[]) {
         std::cerr << "Error: Could not load " << target_filename << std::endl;
         return -1;
     }
-    target->PaintUniformColor({0, 0, 1}); // Blue
+    target->PaintUniformColor({0, 0, 0}); // Black
     vis.AddGeometry(target);
 
     auto source = std::make_shared<open3d::geometry::PointCloud>();
     vis.AddGeometry(source);
+
+    vis.GetViewControl().SetZoom(1.5);
 
     for (int i = 0; i <= 50; i += 2) {
         std::string path = "frames/iter_" + std::to_string(i) + ".ply";
@@ -31,13 +33,17 @@ int main(int argc, char* argv[]) {
         if (frame->IsEmpty()) continue;
 
         source->points_ = frame->points_;
-        source->PaintUniformColor({1, 0, 0}); // Red
+        source->PaintUniformColor({0.83, 0.69, 0.21}); // Gold
         
         vis.UpdateGeometry(source);
         vis.PollEvents();
         vis.UpdateRender();
         std::cout << "Playing Frame: " << i << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+        if (i==2){ 
+            vis.GetViewControl().SetZoom(0.8); // close-up after the initial alignment
+        }
     }
 
     vis.Run(); // Keep window open at the end

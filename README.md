@@ -5,11 +5,6 @@ A C++ and CUDA implementation of the Iterative Closest Point (ICP) algorithm, bo
 
 ![](./capture/lion.gif)
 
-Computerphile has videos video on both ICP and KD-Tree:
-
-[![ICP_Algorithm](https://img.youtube.com/vi/4uWSo8v3iQA/0.jpg)](https://www.youtube.com/watch?v=4uWSo8v3iQA)
-[![KD-Tree](https://img.youtube.com/vi/BK5x7IUTIyU/0.jpg)](https://www.youtube.com/watch?v=BK5x7IUTIyU)
-
 ## Features
 - **CPU Implementation**: Uses Eigen for SVD-based rigid transformations
 - **CUDA Implementation**: GPU-accelerated version with parallel nearest neighbor search, centroid computation, and transformation (Tested on remote GPU server in Linux only)
@@ -19,7 +14,7 @@ Computerphile has videos video on both ICP and KD-Tree:
 ## Algorithm Details
 
 ### ICP Pipeline
-1. **Nearest Neighbor Search**: Find closest target point for each source point
+1. **Nearest Neighbor Search**: Find closest target point for each source point using K-d Tree
 2. **Centroid Computation**: Calculate centers of mass for both point sets
 3. **SVD Transformation**: Compute optimal rigid transformation (rotation + translation)
 4. **Apply Transform**: Update source points
@@ -30,6 +25,12 @@ Computerphile has videos video on both ICP and KD-Tree:
 - Shared memory reductions for centroid computation
 - GPU-accelerated covariance matrix calculation
 - Parallel point transformation
+
+Computerphile has videos on both ICP and KD-Tree:
+
+[![ICP_Algorithm](https://img.youtube.com/vi/4uWSo8v3iQA/0.jpg)](https://www.youtube.com/watch?v=4uWSo8v3iQA)
+[![KD-Tree](https://img.youtube.com/vi/BK5x7IUTIyU/0.jpg)](https://www.youtube.com/watch?v=BK5x7IUTIyU)
+
 
 ## Prerequisites
 

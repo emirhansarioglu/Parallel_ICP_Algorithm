@@ -1,5 +1,7 @@
 # 3D Point Cloud Alignment (ICP)
 
+![](https://github.com/emirhansarioglu/Parallel_ICP_Algorithm/blob/master/capture/bun000.gif)
+
 A C++ and CUDA implementation of the Iterative Closest Point (ICP) algorithm, both with brute force approach and KD-Tree implementation. This project demonstrates point cloud alignment and compares CPU vs GPU performance using parallel computing.
 
 ## Features

@@ -21,10 +21,18 @@ A C++ and CUDA implementation of the Iterative Closest Point (ICP) algorithm, bo
 5. **Iterate**: Repeat until convergence (50 iterations)
 
 ### CUDA Optimizations
-- Parallel nearest neighbor search (each thread processes one source point)
-- Shared memory reductions for centroid computation
-- GPU-accelerated covariance matrix calculation
-- Parallel point transformation
+- #### Parallel Nearest Neighbor Search: 
+Each thread is assigned to process one source point, enabling massive parallelism across the point cloud.
+- #### Shared Memory Tiling: (icp_cuda_v2) 
+To minimize slow global memory access, target points are cooperatively loaded into fast, on-chip shared memory in blocks (tiles). This reduces global memory reads by a factor equal to the TILE_SIZE.
+- #### Memory Alignment with float4: (icp_cuda_v3)
+Data structures were shifted from float3 to float4 to ensure 128-bit memory alignment. This allows the GPU to perform perfectly coalesced memory transactions, maximizing effective bandwidth.
+- #### Shared Memory Reductions: 
+Centroid computation utilizes a parallel tree-reduction pattern in shared memory to avoid race conditions and safely sum point coordinates. 
+- #### GPU-Accelerated Covariance Matrix: 
+The 3X3 covariance matrix is calculated using a hybrid approach where the GPU performs the heavy summation of outer products via atomicAdd and the CPU handles the final SVD.
+- #### Parallel Point Transformation: 
+Once the optimal rotation and translation are found, a specialized kernel applies the 4X4 transformation matrix to the entire source cloud in a single parallel pass.
 
 Computerphile has videos on both ICP and KD-Tree:
 

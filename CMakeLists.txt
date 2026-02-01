@@ -68,6 +68,26 @@ if(CUDA_AVAILABLE AND (Eigen3_FOUND OR EIGEN3_INCLUDE_DIR))
     
     set_target_properties(icp_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
+    add_executable(icp_cuda_v2 src/icp_cuda_v2.cu)
+    
+    if(Eigen3_FOUND)
+        target_link_libraries(icp_cuda_v2 Eigen3::Eigen)
+    else()
+        target_include_directories(icp_cuda_v2 PRIVATE ${EIGEN3_INCLUDE_DIR})
+    endif()
+    
+    set_target_properties(icp_cuda_v2 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+    add_executable(icp_cuda_v3 src/icp_cuda_v3.cu)
+    
+    if(Eigen3_FOUND)
+        target_link_libraries(icp_cuda_v3 Eigen3::Eigen)
+    else()
+        target_include_directories(icp_cuda_v3 PRIVATE ${EIGEN3_INCLUDE_DIR})
+    endif()
+    
+    set_target_properties(icp_cuda_v3 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
     add_executable(icp_cuda_kdtree src/icp_cuda_kdtree.cu)
     
     if(Eigen3_FOUND)

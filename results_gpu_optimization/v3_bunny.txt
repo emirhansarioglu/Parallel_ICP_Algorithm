@@ -1,0 +1,25 @@
+Loaded 40256 vertices from data/bun000.ply
+Loaded 40256 vertices from data/bun000_target.ply
+=== CUDA ICP BENCHMARK (Shared Memory Optimized) ===
+Source points: 40256
+Target points: 40256
+Tile size: 256 points
+GPU: NVIDIA GeForce RTX 3060
+Shared memory per block: 48 KB
+Tile memory usage: 4 KB
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    853.429 ms (0.853429 s)
+Average time per iter:   16.7339 ms
+
+Nearest Neighbor total:  223.501 ms (26.1886%)
+Centroid compute total:  3.05034 ms (0.357421%)
+Transform compute total: 4.21299 ms (0.493655%)
+Apply transform total:   1.36628 ms (0.160093%)
+File I/O & memcpy total: 621.25 ms (72.7946%)
+
+Avg NN per iter:         4.38237 ms
+Avg Centroid per iter:   0.0598105 ms
+Avg Transform per iter:  0.0826077 ms
+Avg Apply per iter:      0.0267897 ms

@@ -1,0 +1,25 @@
+Loaded 183408 vertices from data/lion.ply
+Loaded 183408 vertices from data/lion_target.ply
+=== CUDA ICP BENCHMARK (Shared Memory Optimized) ===
+Source points: 183408
+Target points: 183408
+Tile size: 256 points
+GPU: NVIDIA GeForce RTX 3060
+Shared memory per block: 48 KB
+Tile memory usage: 3 KB
+
+
+=== PERFORMANCE REPORT ===
+Total execution time:    9005.39 ms (9.00539 s)
+Average time per iter:   176.576 ms
+
+Nearest Neighbor total:  6291.74 ms (69.8664%)
+Centroid compute total:  8.54659 ms (0.0949053%)
+Transform compute total: 5.67648 ms (0.0630342%)
+Apply transform total:   1.87232 ms (0.0207911%)
+File I/O & memcpy total: 2697.45 ms (29.9537%)
+
+Avg NN per iter:         123.368 ms
+Avg Centroid per iter:   0.16758 ms
+Avg Transform per iter:  0.111303 ms
+Avg Apply per iter:      0.0367122 ms
